@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<title>甲乙丙丁 - AI古币查询工具</title>
+<link href="./css/bootstrap.min.css" rel="stylesheet">
+<link href="./css/bootstrap-theme.min.css" rel="stylesheet">
+<style>
+div {
+  text-align:center;
+}
+</style>
+</head>
+<body style="text-align:center">
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-6 col-md-6">
+        <a href="#" class="thumbnail" id="pfile">
+          <img id="pimage" src="./images/upload.png" alt="..." width="200px">
+          <div class="caption">
+            <h3>选择正面图</h3>
+          </div>
+        </a>
+      </div>
+      <div class="col-xs-6 col-md-6">
+        <a href="#" class="thumbnail" id="nfile">
+          <img id="nimage" src="./images/upload.png" alt="..." width="200px">
+          <div class="caption">
+            <h3>选择背面面图</h3>
+            <p>友情提示：光背无需上传.</p>
+          </div>
+        </a>
+      </div>
+  </div>
+  <div class="row">
+    <form method="post" action="./api/upload" enctype="multipart/form-data">
+      <div class="form-group" style='display:none'>
+        <label for="positive">选择正面图</label>
+        <input type="file" id="positive" name="positive" />
+      </div>
+      <div class="form-group" style='display:none'>
+        <label for="negative">选择背面面图</label>
+        <input type="file" id="negative" name="negative" />
+        <p class="help-block">友情提示：光背无需上传.</p>
+      </div>
+      
+        <button id="uploadBtn" type="button"  class="btn btn-primary btn-lg">开始查询</button>
+     
+    </form>
+  <div>
+  <div class="row">
+    <pre id="ERROR" style="color:red;display:none;"></pre>
+  </div>
+  <div class="row">
+    <blockquote>
+      <p id="PName"></p>
+      <footer id="PName_Mark"></footer>
+    </blockquote>
+    <blockquote>
+      <p id="NName"></p>
+      <footer id="PName_Mark"></footer>
+    </blockquote>
+  </div>
+</div>
+
+
+<script src="./js/jquery.min.js" crossorigin="anonymous"></script>
+<script src="./js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script>
+function clear(){
+  $('#PName').html('');
+  $('#NName').html('');
+  $('#PName_Mark').html('');
+  $('#PName_Mark').html('');
+  $('#ERROR').html('').css('display','none');
+}
+function display(data){
+  if(data.p){
+    $('#PName').html(data.p.des);
+    $('#PName_Mark').html(data.p.mark);
+  }
+  if(data.n){
+    $('#NName').html(data.n.des);
+    $('#PName_Mark').html(data.n.des);
+  }
+}
+function imagePrevies(file,target){
+   var reader = new FileReader();
+   reader.onload = function () {
+     console.log(this.result);
+    target.attr('src', this.result);
+   };
+   reader.readAsDataURL(file);
+}
+
+function getResult(token){
+  var url = '/api/query?callback=getResultCB&token=' + encodeURIComponent(token);
+  $.getScript(url, function(){});
+}
+
+function getResultCB(data){
+  processing = false;
+  if(data.code == 0){
+    $('#ERROR').html('查询成功').css('display','')
+    display(data.data);
+  }else if(data.code == 400){
+    $('#ERROR').html('对不起无法识别你上传的图片...').css('display','')
+  }else{
+    $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','');
+  }
+}
+
+var processing = false;
+$(function(){
+  $('#pfile').click(function(){
+    $('#positive').click();
+  })
+  $('#nfile').click(function(){
+    $('#negative').click();
+  })
+
+  $('#positive').change(function(){
+    var file = $('#positive').get(0).files[0];
+    if(file){
+      imagePrevies(file, $('#pimage'))
+    }
+  })
+
+  $('#negative').change(function(){
+    var file = $('#negative').get(0).files[0];
+    if(file){
+      imagePrevies(file, $('#nimage'))
+    }
+  })
+
+  $('#uploadBtn').click(function(){
+    if(processing){
+      return;
+    }
+    processing = true;
+    clear();
+    var positive = $('#positive').get(0).files[0];
+    var negative = $('#negative').get(0).files[0];
+    if(!positive){
+      $('#ERROR').html('请选择正面图片').css('display','');
+      processing = false;
+      return;
+    }
+
+    $('#ERROR').html('正在处理中请稍等...').css('display','')
+
+    var obj = {
+      positive:positive
+    }
+    if(negative){
+      obj.negative = negative;
+    }
+
+    var fromData = new FormData();
+    $.each(obj,function(key,value) {
+      fromData.append(key,value);
+    })
+
+    $.ajax({
+      type: 'post',
+      url: './api/upload',
+      cache: false,
+      contentType: false,
+      processData: false, //默认为true，默认情况下，发送的数据将被转换为对象，设为false不希望进行转换
+      data: fromData, //数据
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+        if(data.code == 0){
+          setTimeout(function(){
+            getResult(data.token);
+          }, 1000 * 5)
+        }else{
+          processing = false;
+          $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','');
+        }
+      }	
+    });
+  })
+  
+})
+</script>
+</body>
