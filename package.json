@@ -10,7 +10,7 @@
     "config": "^3.3.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "easydlclassic": "file:../../../../Works/MyPackages/EasyDLClassic",
+    "easydlclassic": "^1.0.0",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "ioredis": "^4.16.2",
