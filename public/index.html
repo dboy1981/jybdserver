@@ -191,7 +191,9 @@ $(function(){
           setTimeout(function(){
             getResult(data.token);
           }, 1000 * 5)
-        }else{
+        } else if(data.code == 501){
+          $('#ERROR').html(data.detail).css('display','');
+        } else{
           processing = false;
           $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','');
         }

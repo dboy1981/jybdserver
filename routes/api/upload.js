@@ -2,11 +2,14 @@ var express = require('express');
 const uploader = require('../../controlers/uploader');
 const Queue = require('../../controlers/queues/image')
 const path = require("path")
+const multer = require('multer');
 var router = express.Router();
 
 router.post('/', (req, res, next) => {
   uploader.upload(req, res, async (err) => {
-    if(err){
+    if (err instanceof multer.MulterError) {
+      return res.jsonp({code:501, detail:err.code});
+    } else if (err) {
       console.log(err);
       return res.jsonp({code:500, detail:err});
     }
