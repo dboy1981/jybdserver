@@ -100,6 +100,7 @@ function getResult(token){
 var retry = 0;
 function getResultCB(data){
   processing = false;
+  console.log(data);
   if(data.code == 0){
     $('#ERROR').html('查询成功').css('display','')
     display(data.data);
@@ -108,7 +109,7 @@ function getResultCB(data){
   }else if(data.code == 401){
     if(retry == 0){
       setTimeout(function(){
-        getResult(token);
+        getResult(cachetoken);
       }, 1000 * 5)
       retry++;
     }else{
@@ -116,7 +117,7 @@ function getResultCB(data){
       $('#ERROR').html('对不起无法识别你上传的图片...').css('display','')
     }
   }else{
-    $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','');
+    $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...(getResultCB)').css('display','');
   }
 }
 
@@ -150,7 +151,7 @@ $(function(){
     if(processing){
       return;
     }
-    if(!cachetoken){
+    if(cachetoken){
       getResult(cachetoken);
     }
     processing = true;

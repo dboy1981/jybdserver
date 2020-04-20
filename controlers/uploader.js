@@ -20,9 +20,17 @@ var storage = multer.diskStorage({
       cb(null, uploadDir);
   },
   filename: function(req, file, cb){
+      //背面图片使用和正面图片一样的名字+后缀(_negative)
+      if(file.fieldname == 'negative' && req._images && req._images.positive){
+        return cb(null, req._images.positive + '_negative' + path.extname(file.originalname));
+      }
       crypto.randomBytes(32, (err, buf) => {
           if (err) throw err;
-          cb(null, buf.toString('hex') + path.extname(file.originalname));
+          var hex = buf.toString('hex');
+          if(file.fieldname == 'positive'){
+            req._images = {positive:hex};
+          }
+          cb(null, hex + path.extname(file.originalname));
       });
   }
 });
