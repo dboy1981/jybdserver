@@ -9,7 +9,7 @@ function image2base64(filepath){
 }
 
 
-//data: {positive:'',negative:''}
+//ret: {positive:'识别结果',negative:'识别结果',status:'识别状态，用户判断：1=correct 2=wrong',suggest:{用户提交建议}}
 module.exports = async (job) => {
   var data = job.data;
   var token = job.name;

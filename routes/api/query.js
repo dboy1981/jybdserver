@@ -44,4 +44,31 @@ router.get('/', async (req, res) => {
   
 });
 
+router.post('/suggest', async (req, res) => {
+  //{token:'', status:'识别状态，用户判断：1=correct 2=wrong',suggest:{用户提交建议}}
+  var suggest = req.body;
+  if(!suggest.token || !suggest.status){
+    res.jsonp({code:100});
+    return;
+  }
+
+  var token = suggest.token;
+
+  try{
+    var info = await Controler.get(token);
+    if(!info){
+      res.jsonp({code:400});
+      return;
+    }
+    info.status = suggest.status;
+    if(suggest.suggest)
+      info.suggest = suggest.suggest;
+    await Controler.add(token, info);
+    res.jsonp({code:0});
+  }catch(err){
+    console.log(err);
+    res.jsonp({code:500, detail:err.message});
+  }
+})
+
 module.exports = router;
