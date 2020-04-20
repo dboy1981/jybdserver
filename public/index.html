@@ -97,6 +97,7 @@ function getResult(token){
   $.getScript(url, function(){});
 }
 
+var retry = 0;
 function getResultCB(data){
   processing = false;
   if(data.code == 0){
@@ -104,12 +105,23 @@ function getResultCB(data){
     display(data.data);
   }else if(data.code == 400){
     $('#ERROR').html('对不起无法识别你上传的图片...').css('display','')
+  }else if(data.code == 401){
+    if(retry == 0){
+      setTimeout(function(){
+        getResult(token);
+      }, 1000 * 5)
+      retry++;
+    }else{
+      retry = 0;
+      $('#ERROR').html('对不起无法识别你上传的图片...').css('display','')
+    }
   }else{
     $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','');
   }
 }
 
 var processing = false;
+var cachetoken = '';
 $(function(){
   $('#pfile').click(function(){
     $('#positive').click();
@@ -119,6 +131,7 @@ $(function(){
   })
 
   $('#positive').change(function(){
+    cachetoken = '';
     var file = $('#positive').get(0).files[0];
     if(file){
       imagePrevies(file, $('#pimage'))
@@ -126,6 +139,7 @@ $(function(){
   })
 
   $('#negative').change(function(){
+    cachetoken = '';
     var file = $('#negative').get(0).files[0];
     if(file){
       imagePrevies(file, $('#nimage'))
@@ -135,6 +149,9 @@ $(function(){
   $('#uploadBtn').click(function(){
     if(processing){
       return;
+    }
+    if(!cachetoken){
+      getResult(cachetoken);
     }
     processing = true;
     clear();
@@ -170,6 +187,7 @@ $(function(){
       success: function(data, textStatus, jqXHR) {
         console.log(data);
         if(data.code == 0){
+          cachetoken = data.token;
           setTimeout(function(){
             getResult(data.token);
           }, 1000 * 5)

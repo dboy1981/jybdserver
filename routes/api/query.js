@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
   var info = await Controler.get(token);
   if(!info || (!info.positive && !info.negative)){
-    res.jsonp({code:400});
+    res.jsonp({code:401});
     return;
   }
 
