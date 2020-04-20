@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "archiver": "^4.0.1",
     "bullmq": "^1.8.7",
     "config": "^3.3.1",
     "cookie-parser": "~1.4.4",

@@ -1,10 +1,10 @@
 var express = require('express');
-const config = require('config');
+const middleware = require('./middleware');
 const LabelsControler = require('../../../controlers/labels');
 var router = express.Router();
 
 
-router.post('/', async (req, res) => {
+router.post('/', middleware.checkToken, async (req, res) => {
   var token = req.query.token;
   var expeted = config.get('token');
   if(token != expeted){

@@ -46,6 +46,7 @@ router.get('/', async (req, res) => {
 
 router.post('/suggest', async (req, res) => {
   //{token:'', status:'识别状态，用户判断：1=correct 2=wrong',suggest:{用户提交建议}}
+  //{"token":"eb260bab55e9435c6803280b056dfd0950fca90e19d83109902d2c1f09f84b57.jpeg", "status":1,"suggest":{}}
   var suggest = req.body;
   if(!suggest.token || !suggest.status){
     res.jsonp({code:100});
