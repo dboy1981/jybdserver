@@ -37,9 +37,22 @@ router.get('/', async (req, res) => {
     return;
   }
 
+  //疑似列表
+  var suspect = {p:[], n:[]};
+  for(var i = 1; i < info.positive.results.length; i++){
+    suspect.p.push(Object.assign({}, {name:info.positive.results[i].name}, await Label.get(info.positive.results[i].name)))
+  } 
+  if(info.negative){
+    for(var i = 1; i < info.negative.results.length; i++){
+      suspect.n.push(Object.assign({}, {name:info.negative.results[i].name}, await Label.get(info.negative.results[i].name)))
+    } 
+  }
+
+
   res.jsonp({code:0, data:{
     p: labelP ? await Label.get(labelP) : null,
-    n: labelN ? await Label.get(labelN) : null
+    n: labelN ? await Label.get(labelN) : null,
+    suspect
   }});
   
 });
