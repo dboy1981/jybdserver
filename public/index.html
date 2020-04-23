@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<title>甲乙丙丁 - AI古币查询工具</title>
+<title>甲乙丙丁（训练版） - AI古币查询工具</title>
 <link href="./css/bootstrap.min.css" rel="stylesheet">
 <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
 <style>
@@ -10,7 +10,7 @@ div {
 }
 </style>
 </head>
-<body style="text-align:center">
+<body style="text-align:center;margin:10px;">
 <div class="container-fluid">
   <div class="row">
     <div class="col-xs-6 col-md-6">
@@ -18,6 +18,7 @@ div {
           <img id="pimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
             <h3>选择正面图</h3>
+            <p>目前支持图片类型为png、jpg、bmp、jpeg，图片大小限制在4M以内。</p>
           </div>
         </a>
       </div>
@@ -40,7 +41,6 @@ div {
       <div class="form-group" style='display:none'>
         <label for="negative">选择背面面图</label>
         <input type="file" id="negative" name="negative" />
-        <p class="help-block">友情提示：光背无需上传.</p>
       </div>
       
         <button id="uploadBtn" type="button"  class="btn btn-primary btn-lg">开始查询</button>
@@ -60,6 +60,16 @@ div {
       <footer id="PName_Mark"></footer>
     </blockquote>
   </div>
+  <div id="suggestBox" class="row" style='display:none'>
+    <form>
+      <div class="form-group" >
+        <label for="positive">建议</label>
+        <textarea  id="suggest_mark" class="form-control" rows="3"></textarea>
+      </div>
+      <button id="suggest_right" type="button"  class="btn btn-success btn-lg">查询正确</button>
+      <button id="suggest_wrong" type="button"  class="btn btn-danger btn-lg">查询错误</button>
+    </form>
+  </div>
 </div>
 
 
@@ -72,6 +82,8 @@ function clear(){
   $('#PName_Mark').html('');
   $('#PName_Mark').html('');
   $('#ERROR').html('').css('display','none');
+  $('#suggestBox').css('display','none');
+  $('#suggest_mark').val('');
 }
 function display(data){
   if(data.p){
@@ -82,6 +94,7 @@ function display(data){
     $('#NName').html(data.n.des);
     $('#PName_Mark').html(data.n.des);
   }
+  $('#suggestBox').css('display','')
 }
 function imagePrevies(file,target){
    var reader = new FileReader();
@@ -121,9 +134,52 @@ function getResultCB(data){
   }
 }
 
+
+//suggest
+function suggest(isRight){
+  if(cachetoken && !processing){
+    processing = true;
+    var mark = $('#suggest_mark').val();
+    var data = {};
+    var suggest = {};
+    if(mark){
+      suggest.mark = mark;
+    }
+    data.token = cachetoken;
+    data.status= isRight ? 1 : 2;
+    data.suggest = suggest;
+    $.ajax({
+      type: "POST",
+      url: './api/query/suggest',
+      data: data,
+      success: suggestSuccess,
+      dataType: 'json',
+      complete: function(){processing = false;}
+    });
+  }
+}
+
+function suggestSuccess(data){
+  processing = false;
+  if(data.code == 0){
+    $('#ERROR').html('建议提交成功...').css('display','')
+  }else{
+    $('#ERROR').html(data.detail || '建议提交失败').css('display','')
+  }
+}
+
+//suggest
+
 var processing = false;
 var cachetoken = '';
 $(function(){
+  $('#suggest_right').click(function(){
+    suggest(true);
+  })
+  $('#suggest_wrong').click(function(){
+    suggest(false);
+  })
+
   $('#pfile').click(function(){
     $('#positive').click();
   })
@@ -153,6 +209,7 @@ $(function(){
     }
     if(cachetoken){
       getResult(cachetoken);
+      return;
     }
     processing = true;
     clear();
