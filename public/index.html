@@ -80,6 +80,7 @@ function clear(){
   $('#suspectTable').html('');
 }
 function display(data){
+  $('#suspectTable').html('');
   if(data.p){
     $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + data.p.des + '</td><td>' + data.p.mark +'</td><td></td></tr>')
   }
