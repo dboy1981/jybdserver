@@ -1,6 +1,7 @@
 var express = require('express');
 const middleware = require('./middleware');
 const LabelsControler = require('../../../controlers/labels');
+const config = require('config')
 var router = express.Router();
 
 
