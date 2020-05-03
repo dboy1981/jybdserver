@@ -218,12 +218,14 @@ $(function(){
     if(processing){
       return;
     }
+
+    clear();
     if(cachetoken){
       getResult(cachetoken);
       return;
     }
     processing = true;
-    clear();
+    
     var positive = $('#positive').get(0).files[0];
     var negative = $('#negative').get(0).files[0];
     if(!positive){
