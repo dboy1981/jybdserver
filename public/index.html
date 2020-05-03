@@ -84,7 +84,7 @@ function display(data){
   if(data.p && data.p.des){
     $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + data.p.des + '</td><td>' + data.p.mark +'</td><td></td></tr>')
   }
-  if(data.n || data.n.des){
+  if(data.n && data.n.des){
     $('#suspectTable').append('<tr><td>背面</td><td>' + data.n.des + '</td><td>' + data.n.mark +'</td><td></td></tr>')
   }
   if(data.suspect){
