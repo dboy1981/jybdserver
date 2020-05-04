@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<title>甲乙丙丁（训练版） - AI古币查询工具</title>
+<title>甲乙丙丁（训练版） - AI古币识别工具</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="甲乙丙丁 - AI古币识别工具">
+<meta name="keywords" content="古币, 智能识别, 古泉, 古钱">
 <link href="./css/bootstrap.min.css" rel="stylesheet">
 <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
 <style>
@@ -14,7 +17,7 @@ div {
 </head>
 <body style="text-align:center;margin:10px;">
 <div class="container-fluid">
-  <h1>甲乙丙丁（训练版）</h1>
+  <h1>甲乙丙丁（训练版）<br/>AI古币识别工具</h1>
   <div class="row">
     <div class="col-xs-6 col-md-6">
         <a href="#" class="thumbnail" id="pfile">
@@ -29,7 +32,7 @@ div {
         <a href="#" class="thumbnail" id="nfile">
           <img id="nimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
-            <h3>选择背面面图</h3>
+            <h3>选择背面图</h3>
             <p>友情提示：光背无需上传.</p>
           </div>
         </a>
@@ -42,11 +45,11 @@ div {
         <input type="file" id="positive" name="positive" />
       </div>
       <div class="form-group" style='display:none'>
-        <label for="negative">选择背面面图</label>
+        <label for="negative">选择背面图</label>
         <input type="file" id="negative" name="negative" />
       </div>
       
-        <button id="uploadBtn" type="button"  class="btn btn-primary btn-lg">开始查询</button>
+        <button id="uploadBtn" type="button"  class="btn btn-primary btn-lg">开 始 识 别</button>
      
     </form>
   <div>
@@ -60,11 +63,11 @@ div {
   <div id="suggestBox" class="row" style='display:none'>
     <form>
       <div class="form-group" >
-        <label for="positive">建议</label>
+        <label for="positive">识别建议</label>
         <textarea  id="suggest_mark" class="form-control" rows="3"></textarea>
       </div>
-      <button id="suggest_right" type="button"  class="btn btn-success btn-lg">查询正确</button>
-      <button id="suggest_wrong" type="button"  class="btn btn-danger btn-lg">查询错误</button>
+      <button id="suggest_right" type="button"  class="btn btn-success btn-lg">识别正确</button>
+      <button id="suggest_wrong" type="button"  class="btn btn-danger btn-lg">识别错误</button>
     </form>
   </div>
 </div>
@@ -78,6 +81,7 @@ function clear(){
   $('#suggestBox').css('display','none');
   $('#suggest_mark').val('');
   $('#suspectTable').html('');
+  retry = 0;
 }
 function display(data){
   $('#suspectTable').html('');
@@ -91,14 +95,14 @@ function display(data){
     if(data.suspect.p){
       for(var p of data.suspect.p){
         if(p.des){
-          $('#suspectTable').append('<tr><td style="color:gray">疑似正面</td><td>' + p.des + '</td><td>' + p.mark +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + p.name + '\')">标记正确</button></td></tr>')
+          $('#suspectTable').append('<tr><td style="color:gray">疑似正面</td><td>' + p.des + '</td><td>' + p.mark +'</td><td><button type="button" class="btn btn-success btn-lg setrightbtn" onclick="setRight(\'' + p.name + '\',this)">标记正确</button></td></tr>')
         }
       }
     }
     if(data.suspect.n){
       for(var n of data.suspect.n){
         if(n.des){
-          $('#suspectTable').append('<tr><td style="color:gray">疑似背面</td><td>' + n.des + '</td><td>' + n.mark +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + p.name + '\')">标记正确</button></td></tr>')
+          $('#suspectTable').append('<tr><td style="color:gray">疑似背面</td><td>' + n.des + '</td><td>' + n.mark +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + p.name + '\',this)">标记正确</button></td></tr>')
         }
       }
     }
@@ -145,8 +149,10 @@ function getResultCB(data){
 
 
 //suggest
-function setRight(label){
+function setRight(label, that){
   suggest(false, label);
+  $('.setrightbtn').html('标记正确')
+  $(that).html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>')
 }
 function suggest(isRight, rightLabel){
   if(cachetoken && !processing){
