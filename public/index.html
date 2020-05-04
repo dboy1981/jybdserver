@@ -84,6 +84,7 @@ function clear(){
   retry = 0;
 }
 function display(data){
+  window.location.href='#suggestBox';
   $('#suspectTable').html('');
   if(data.p && data.p.des){
     $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + data.p.des + '</td><td>' + data.p.mark +'</td><td></td></tr>')
