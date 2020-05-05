@@ -17,14 +17,14 @@ div {
 </head>
 <body style="text-align:center;margin:10px;">
 <div class="container-fluid">
-  <h1>甲乙丙丁（训练版）<br/>AI古币识别工具</h1>
+  <h1>甲乙丙丁（训练版）</h1>
+  <h2>AI古币识别工具</h2>
   <div class="row">
     <div class="col-xs-6 col-md-6">
         <a href="#" class="thumbnail" id="pfile">
           <img id="pimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
-            <h3>选择正面图</h3>
-            <p>目前支持图片类型为png、jpg、bmp、jpeg，图片大小限制在4M以内。</p>
+            <h3>正面</h3>
           </div>
         </a>
       </div>
@@ -32,12 +32,16 @@ div {
         <a href="#" class="thumbnail" id="nfile">
           <img id="nimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
-            <h3>选择背面图</h3>
-            <p>友情提示：光背无需上传.</p>
+            <h3>背面</h3>
+            
           </div>
         </a>
       </div>
   </div>
+  <div class="row">
+  <p>目前支持图片类型为png、jpg、bmp、jpeg，图片大小限制在4M以内。</p>
+  <p>友情提示：光背无需上传背面.</p>
+  </dir>
   <div class="row">
     <form method="post" action="./api/upload" enctype="multipart/form-data">
       <div class="form-group" style='display:none'>
