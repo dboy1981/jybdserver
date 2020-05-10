@@ -22,7 +22,7 @@ router.post('/', middleware.checkToken, async (req, res) => {
   try{
     for(var key of Object.keys(info)){
       for(var item of info[key]){
-        await LabelsControler.add(item.cate, item);
+        await LabelsControler.add(item.key, item);
       }
     }
   }catch(err){

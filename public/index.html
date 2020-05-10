@@ -87,26 +87,32 @@ function clear(){
   $('#suspectTable').html('');
   retry = 0;
 }
+function format(name, ver){
+  if(name == ver){
+    return name;
+  }
+  return name + '·' + ver;
+}
 function display(data){
   $('#suspectTable').html('');
-  if(data.p && data.p.des){
-    $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + data.p.des + '</td><td>' + data.p.mark +'</td><td></td></tr>')
+  if(data.p && data.p.name){
+    $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + format(data.p.name, data.p.ver) + '</td><td>' + data.p.intro +'</td><td></td></tr>')
   }
-  if(data.n && data.n.des){
-    $('#suspectTable').append('<tr><td>背面</td><td>' + data.n.des + '</td><td>' + data.n.mark +'</td><td></td></tr>')
+  if(data.n && data.n.name){
+    $('#suspectTable').append('<tr><td>背面</td><td>' + format(data.n.name, data.n.ver) + '</td><td>' + data.n.intro +'</td><td></td></tr>')
   }
   if(data.suspect){
     if(data.suspect.p){
       for(var p of data.suspect.p){
-        if(p.des){
-          $('#suspectTable').append('<tr><td style="color:gray">疑似正面</td><td>' + p.des + '</td><td>' + p.mark +'</td><td><button type="button" class="btn btn-success btn-lg setrightbtn" onclick="setRight(\'' + p.name + '\',this)">标记正确</button></td></tr>')
+        if(p.name){
+          $('#suspectTable').append('<tr><td style="color:gray">疑似正面</td><td>' + format(p.name, p.ver) + '</td><td>' + p.intro +'</td><td><button type="button" class="btn btn-success btn-lg setrightbtn" onclick="setRight(\'' + p.key + '\',this)">标记正确</button></td></tr>')
         }
       }
     }
     if(data.suspect.n){
       for(var n of data.suspect.n){
         if(n.des){
-          $('#suspectTable').append('<tr><td style="color:gray">疑似背面</td><td>' + n.des + '</td><td>' + n.mark +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + p.name + '\',this)">标记正确</button></td></tr>')
+          $('#suspectTable').append('<tr><td style="color:gray">疑似背面</td><td>' + format(n.name, n.ver) + '</td><td>' + n.intro +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + n.key + '\',this)">标记正确</button></td></tr>')
         }
       }
     }
