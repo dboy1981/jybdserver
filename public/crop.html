@@ -7,6 +7,7 @@
 <meta name="keywords" content="古币, 智能识别, 古泉, 古钱, 对版, 古币对版, 古钱对版, 铜钱对版, 古币识别, 古钱识别, 铜钱识别">
 <link href="./css/bootstrap.min.css" rel="stylesheet">
 <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="./css/cropper.min.css" rel="stylesheet">
 <style>
 div {
   text-align:center;
@@ -17,11 +18,9 @@ div {
 </head>
 <body style="text-align:center;margin:10px;">
 <div class="container-fluid">
-  <h1>甲乙丙丁（训练版）</h1>
-  <h2>AI古币识别工具</h2>
   <div class="row">
     <div class="col-xs-6 col-md-6">
-        <a href="#" class="thumbnail" id="pfile">
+        <a href="javascript:void(0)" class="thumbnail" id="pfile">
           <img id="pimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
             <h3>正面</h3>
@@ -29,7 +28,7 @@ div {
         </a>
       </div>
       <div class="col-xs-6 col-md-6">
-        <a href="#" class="thumbnail" id="nfile">
+        <a href="javascript:void(0)" class="thumbnail" id="nfile">
           <img id="nimage" src="./images/upload.png" alt="..." width="200px">
           <div class="caption">
             <h3>背面</h3>
@@ -77,8 +76,10 @@ div {
 </div>
 
 
+
 <script src="./js/jquery.min.js" crossorigin="anonymous"></script>
 <script src="./js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="./js/cropper.min.js" crossorigin="anonymous"></script>
 <script>
 function clear(){
   $('#ERROR').html('').css('display','none');
@@ -120,13 +121,42 @@ function display(data){
   $('#suggestBox').css('display','')
   window.location.href='#suggestBox';
 }
-function imagePrevies(file,target){
+var cropper_p;
+var cropper_n;
+function imagePrevies(file,target,cropper,callback){
    var reader = new FileReader();
    reader.onload = function () {
-     //console.log(this.result);
     target.attr('src', this.result);
+    if(!cropper){
+      cropper = new Cropper(target[0], {
+      //aspectRatio: 16 / 9,
+        scalable: false,
+        viewMode: 1,
+        preview: '.img-preview',
+        crop(event) {
+          console.log(event.detail.x);
+          console.log(event.detail.y);
+          console.log(event.detail.width);
+          console.log(event.detail.height);
+          console.log(event.detail.rotate);
+          console.log(event.detail.scaleX);
+          console.log(event.detail.scaleY);
+        },
+      });
+    }
+    
    };
-   reader.readAsDataURL(file);
+   if(cropper){
+     cropper.getCroppedCanvas().toBlob(function(blob){
+        reader.readAsDataURL(blob);
+        if(callback){
+          callback();
+        }
+     })
+   }else{
+    reader.readAsDataURL(file);
+   }
+   
 }
 
 function getResult(token){
@@ -212,10 +242,10 @@ $(function(){
     suggest(false);
   })
 
-  $('#pfile').click(function(){
+  $('#pimage').click(function(){
     $('#positive').click();
   })
-  $('#nfile').click(function(){
+  $('#nimage').click(function(){
     $('#negative').click();
   })
 
@@ -223,7 +253,7 @@ $(function(){
     cachetoken = '';
     var file = $('#positive').get(0).files[0];
     if(file){
-      imagePrevies(file, $('#pimage'))
+      imagePrevies(file, $('#pimage'), cropper_p)
     }
   })
 
@@ -231,7 +261,7 @@ $(function(){
     cachetoken = '';
     var file = $('#negative').get(0).files[0];
     if(file){
-      imagePrevies(file, $('#nimage'))
+      imagePrevies(file, $('#nimage'), cropper_n)
     }
   })
 
@@ -246,6 +276,10 @@ $(function(){
       return;
     }
     processing = true;
+    if(cropper_p){
+        imagePrevies(null,$('#pimage'), cropper_p)
+    }
+    
     
     var positive = $('#positive').get(0).files[0];
     var negative = $('#negative').get(0).files[0];
@@ -294,5 +328,6 @@ $(function(){
   })
   
 })
+
 </script>
 </body>
