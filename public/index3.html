@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<title>甲乙丙丁（训练版） - AI古币识别工具</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="甲乙丙丁 - AI古币识别工具">
+<meta name="keywords" content="古币, 智能识别, 古泉, 古钱, 对版, 古币对版, 古钱对版, 铜钱对版, 古币识别, 古钱识别, 铜钱识别">
+<link href="./css/bootstrap.min.css" rel="stylesheet">
+<link href="./css/bootstrap-theme.min.css" rel="stylesheet">
+<style>
+div {
+  text-align:center;
+  margin-right:auto;
+  margin-left:auto;
+}
+</style>
+</head>
+<body style="text-align:center;margin:10px;">
+<div class="container-fluid">
+  <h1>甲乙丙丁（训练版）</h1>
+  <h2>AI古币识别工具</h2>
+  <div class="row">
+    <div class="col-xs-6 col-md-6">
+        <a href="#" class="thumbnail" id="pfile">
+          <img id="pimage" src="./images/upload.png" alt="..." width="200px">
+          <div class="caption">
+            <h3>正面</h3>
+          </div>
+        </a>
+      </div>
+      <div class="col-xs-6 col-md-6">
+        <a href="#" class="thumbnail" id="nfile">
+          <img id="nimage" src="./images/upload.png" alt="..." width="200px">
+          <div class="caption">
+            <h3>背面</h3>
+            
+          </div>
+        </a>
+      </div>
+  </div>
+  <div class="row">
+  <p>目前支持图片类型为png、jpg、bmp、jpeg，图片大小限制在4M以内。</p>
+  <p>友情提示：光背无需上传背面.</p>
+  </dir>
+  <div class="row">
+    <form method="post" action="./api/upload" enctype="multipart/form-data">
+      <div class="form-group" style='display:none'>
+        <label for="positive">选择正面图</label>
+        <input type="file" id="positive" name="positive" />
+      </div>
+      <div class="form-group" style='display:none'>
+        <label for="negative">选择背面图</label>
+        <input type="file" id="negative" name="negative" />
+      </div>
+      
+        <button id="uploadBtn" type="button"  class="btn btn-primary btn-lg">开 始 识 别</button>
+     
+    </form>
+  <div>
+  <div class="row">
+    <div id="ERROR" class="alert" style="display:none"></div>
+  </div>
+  <div class="row">
+    <table class="table" id="suspectTable">
+    </table>
+  </div>
+  <div id="suggestBox" class="row" style='display:none'>
+    <form>
+      <div class="form-group" >
+        <label for="positive">识别建议</label>
+        <textarea  id="suggest_mark" class="form-control" rows="3"></textarea>
+      </div>
+      <button id="suggest_right" type="button"  class="btn btn-success btn-lg">识别正确</button>
+      <button id="suggest_wrong" type="button"  class="btn btn-danger btn-lg">识别错误</button>
+    </form>
+  </div>
+</div>
+
+
+<script src="./js/jquery.min.js" crossorigin="anonymous"></script>
+<script src="./js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script>
+function clear(){
+  $('#ERROR').html('').css('display','none');
+  $('#suggestBox').css('display','none');
+  $('#suggest_mark').val('');
+  $('#suspectTable').html('');
+  retry = 0;
+}
+function format(name, ver){
+  if(name == ver){
+    return name;
+  }
+  return name + '·' + ver;
+}
+function display(data){
+  $('#suspectTable').html('');
+  if(data.p && data.p.name){
+    $('#suspectTable').append('<tr><td style="color:green">正面结果</td><td>' + format(data.p.name, data.p.ver) + '</td><td>' + data.p.intro +'</td><td></td></tr>')
+  }
+  if(data.n && data.n.name){
+    $('#suspectTable').append('<tr><td>背面</td><td>' + format(data.n.name, data.n.ver) + '</td><td>' + data.n.intro +'</td><td></td></tr>')
+  }
+  if(data.suspect){
+    if(data.suspect.p){
+      for(var p of data.suspect.p){
+        if(p.name){
+          $('#suspectTable').append('<tr><td style="color:gray">疑似正面</td><td>' + format(p.name, p.ver) + '</td><td>' + p.intro +'</td><td><button type="button" class="btn btn-success btn-lg setrightbtn" onclick="setRight(\'' + p.key + '\',this)">标记正确</button></td></tr>')
+        }
+      }
+    }
+    if(data.suspect.n){
+      for(var n of data.suspect.n){
+        if(n.des){
+          $('#suspectTable').append('<tr><td style="color:gray">疑似背面</td><td>' + format(n.name, n.ver) + '</td><td>' + n.intro +'</td><td><button type="button" class="btn btn-success btn-lg" onclick="setRight(\'' + n.key + '\',this)">标记正确</button></td></tr>')
+        }
+      }
+    }
+  }
+  $('#suggestBox').css('display','')
+  window.location.href='#suggestBox';
+}
+function imagePrevies(file,target){
+   var reader = new FileReader();
+   reader.onload = function () {
+     //console.log(this.result);
+    target.attr('src', this.result);
+   };
+   reader.readAsDataURL(file);
+}
+
+function getResult(token){
+  var url = '/api/query?callback=getResultCB&token=' + encodeURIComponent(token);
+  $.getScript(url, function(){});
+}
+
+var retry = 0;
+function getResultCB(data){
+  processing = false;
+  console.log(data);
+  if(data.code == 0){
+    $('#ERROR').html('查询成功').css('display','').attr("class","alert alert-success")
+    display(data.data);
+  }else if(data.code == 400){
+    $('#ERROR').html('对不起无法识别你上传的图片...').css('display','').attr("class","alert alert-warning")
+  }else if(data.code == 401){
+    if(retry == 0){
+      setTimeout(function(){
+        getResult(cachetoken);
+      }, 1000 * 5)
+      retry++;
+    }else{
+      retry = 0;
+      $('#ERROR').html('对不起无法识别你上传的图片...').css('display','').attr("class","alert alert-warning")
+    }
+  }else{
+    $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...(getResultCB)').css('display','').attr("class","alert alert-warning");
+  }
+}
+
+
+//suggest
+function setRight(label, that){
+  suggest(false, label);
+  $('.setrightbtn').html('标记正确')
+  $(that).html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>')
+}
+function suggest(isRight, rightLabel){
+  if(cachetoken && !processing){
+    processing = true;
+    var mark = $('#suggest_mark').val();
+    var data = {};
+    var suggest = {};
+    if(mark){
+      suggest.mark = mark;
+    }
+    if(rightLabel){
+      suggest.label = rightLabel;
+    }
+    data.token = cachetoken;
+    data.status= isRight ? 1 : 2;
+    data.suggest = suggest;
+    $.ajax({
+      type: "POST",
+      url: './api/query/suggest',
+      data: data,
+      success: suggestSuccess,
+      dataType: 'json',
+      complete: function(){processing = false;}
+    });
+  }
+}
+
+function suggestSuccess(data){
+  processing = false;
+  if(data.code == 0){
+    $('#ERROR').html('建议提交成功...').css('display','').attr("class","alert alert-success")
+  }else{
+    $('#ERROR').html(data.detail || '建议提交失败').css('display','').attr("class","alert alert-warning")
+  }
+}
+
+//suggest
+
+var processing = false;
+var cachetoken = '';
+$(function(){
+  $('#suggest_right').click(function(){
+    suggest(true);
+  })
+  $('#suggest_wrong').click(function(){
+    suggest(false);
+  })
+
+  $('#pfile').click(function(){
+    $('#positive').click();
+  })
+  $('#nfile').click(function(){
+    $('#negative').click();
+  })
+
+  $('#positive').change(function(){
+    cachetoken = '';
+    var file = $('#positive').get(0).files[0];
+    if(file){
+      imagePrevies(file, $('#pimage'))
+    }
+  })
+
+  $('#negative').change(function(){
+    cachetoken = '';
+    var file = $('#negative').get(0).files[0];
+    if(file){
+      imagePrevies(file, $('#nimage'))
+    }
+  })
+
+  $('#uploadBtn').click(function(){
+    if(processing){
+      return;
+    }
+
+    clear();
+    if(cachetoken){
+      getResult(cachetoken);
+      return;
+    }
+    processing = true;
+    
+    var positive = $('#positive').get(0).files[0];
+    var negative = $('#negative').get(0).files[0];
+    if(!positive){
+      $('#ERROR').html('请选择正面图片').css('display','').attr("class","alert alert-warning");
+      processing = false;
+      return;
+    }
+
+    $('#ERROR').html('正在处理中请稍等...').css('display','').attr("class","alert alert-info")
+
+    var obj = {
+      positive:positive
+    }
+    if(negative){
+      obj.negative = negative;
+    }
+
+    var fromData = new FormData();
+    $.each(obj,function(key,value) {
+      fromData.append(key,value);
+    })
+
+    $.ajax({
+      type: 'post',
+      url: './api/upload',
+      cache: false,
+      contentType: false,
+      processData: false, //默认为true，默认情况下，发送的数据将被转换为对象，设为false不希望进行转换
+      data: fromData, //数据
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+        if(data.code == 0){
+          cachetoken = data.token;
+          setTimeout(function(){
+            getResult(data.token);
+          }, 1000 * 5)
+        } else if(data.code == 501){
+          $('#ERROR').html(data.detail).css('display','').attr("class","alert alert-warning");
+        } else{
+          processing = false;
+          $('#ERROR').html('系统崩溃啦，赶快打电话给管理员...').css('display','').attr("class","alert alert-warning");
+        }
+      }	
+    });
+  })
+  
+})
+</script>
+</body>
