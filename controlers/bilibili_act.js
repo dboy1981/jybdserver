@@ -226,5 +226,5 @@ exports.crawl = async function() {
 
 //test
 
-// exports.crawl()
+exports.crawl()
 

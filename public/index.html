@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<title>甲乙丙丁（训练版） - AI古币识别工具</title>
+<title>甲乙丙丁</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="甲乙丙丁 - AI古币识别工具">
 <meta name="keywords" content="古币, 智能识别, 古泉, 古钱, 对版, 古币对版, 古钱对版, 铜钱对版, 古币识别, 古钱识别, 铜钱识别">
@@ -21,13 +21,29 @@ div {
   <button onclick="downloadAct()">下载活动文件</button>
 </div>
 <script>
+Date.prototype.format = function (fmt) {
+  var o = {
+    "M+": this.getMonth() + 1, //月份
+    "d+": this.getDate(), //日
+    "h+": this.getHours(), //小時
+    "m+": this.getMinutes(), //分
+    "s+": this.getSeconds(), //秒
+    "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+    "S": this.getMilliseconds() //毫秒
+  };
+  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (var k in o)
+  if (new RegExp("(" +  k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" +  o[k]).substr(("" + o[k]).length)));
+  return fmt;
+}
+
 function downloadRank() {
-  var now = new Data();
-  window.open('/data/' + now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + '.xlsx')
+  var now = new Date();
+  window.open('/data/' + now.format('yyyy-MM-dd') + '.xlsx')
 }
 function downloadAct() {
-  var now = new Data();
-  window.open('/data/act_' + now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + '.xlsx')
+  var now = new Date();
+  window.open('/data/act_' + now.format('yyyy-MM-dd') + '.xlsx')
 }
 </script>
 </body>
