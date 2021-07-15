@@ -150,8 +150,10 @@ async function parseVideoList(data) {
     var url = `https://api.bilibili.com/x/activity/up/list?sid=${sourceid}&type=ctime&pn=1&ps=100&zone=0`
     console.log(url)
     const act_ret = await get(url)
-    for(const v of act_ret.data.list) {
-      ret.push(parseActData(v))
+    if(Array.isArray(act_ret.data.list)) {
+      for(const v of act_ret.data.list) {
+        ret.push(parseActData(v))
+      }
     }
   }
   // console.log(ret)
@@ -226,5 +228,5 @@ exports.crawl = async function() {
 
 //test
 
-exports.crawl()
+// exports.crawl()
 

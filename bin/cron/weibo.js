@@ -1,5 +1,5 @@
 var CronJob = require('cron').CronJob;
-const { crawl } = require('../../controlers/bilibili_act')
+const { crawl } = require('../../controlers/weibo')
 var job = new CronJob(
 	'00 05 00 * * *',
 	function() {
