@@ -19,6 +19,7 @@ div {
 <div class="container-fluid">
   <button onclick="downloadRank()">下载排行榜文件</button>
   <button onclick="downloadAct()">下载活动文件</button>
+  <button onclick="downloadWeibo()">下载微博文件</button>
 </div>
 <script>
 Date.prototype.format = function (fmt) {
@@ -44,6 +45,10 @@ function downloadRank() {
 function downloadAct() {
   var now = new Date();
   window.open('/data/act_' + now.format('yyyy-MM-dd') + '.xlsx')
+}
+function downloadWeibo() {
+  var now = new Date();
+  window.open('/data/keyword_' + now.format('yyyy-MM-dd') + '.xlsx')
 }
 </script>
 </body>
